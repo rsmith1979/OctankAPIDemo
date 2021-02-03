@@ -9,7 +9,7 @@ containers:
             during_build:
                 commands:
                     - npm install
-                    - aws cloudformation package --template $INPUT_FILE --s3-bucket $S3_BUCKET --output-template post-saml.yaml
+                    - aws cloudformation package --template PatientDBFunctions.yaml --s3-bucket codepipeline-us-east-2-246529850718 --output-template post-saml.yaml
         artifacts:
             files:
                 - post-saml.yaml

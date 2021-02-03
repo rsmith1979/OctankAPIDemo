@@ -7,7 +7,7 @@ Resources:
     Properties:
       Handler: patientDB.lambda_handler
       Runtime: nodejs10.x
-      CodeUri: ./code
+      CodeUri: /code
       Description: ''
       MemorySize: 128
       Timeout: 30

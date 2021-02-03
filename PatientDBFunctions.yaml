@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: An AWS Serverless Specification template describing your function.
+Resources:
+  CustomizeUnicornsPatientDBFunction11QKPSEMR77O1:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: patientDB.lambda_handler
+      Runtime: nodejs10.x
+      CodeUri: code/
+      Description: ''
+      MemorySize: 128
+      Timeout: 30
+      Role: >-
+        arn:aws:iam::896862571943:role/CustomizeUnicorns-PatientDBFunctionRole-1CR8MGE1YPEWA
+      Events:
+        Api1:
+          Type: Api
+          Properties:
+            Path: /patients
+            Method: GET
+        Api2:
+          Type: Api
+          Properties:
+            Path: /patients
+            Method: POST
+        Api3:
+          Type: Api
+          Properties:
+            Path: '/patients/{id}'
+            Method: DELETE
+        Api4:
+          Type: Api
+          Properties:
+            Path: '/patients/{id}'
+            Method: GET
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-0f7c5ddf65193f4f8
+        SubnetIds:
+          - subnet-019bb4b35fee5f888
+          - subnet-073c67e08c38bfcb9
+      Environment:
+        Variables:
+          SECRET_NAME: secure-serverless-db-secret
+      Tags:
+        'lambda:createdBy': SAM

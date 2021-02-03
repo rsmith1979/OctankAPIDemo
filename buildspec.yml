@@ -1,0 +1,15 @@
+version: 0.0
+environment_variables:
+    plaintext:
+        "INPUT_FILE": "PatientDBFunctions.yaml"
+        "S3_BUCKET": "codepipeline-us-east-2-246529850718"
+containers:
+    LambdaFunctions:
+        phases:
+            during_build:
+                commands:
+                    - npm install
+                    - aws cloudformation package --template PatientDBFunctions.yaml --s3-bucket codepipeline-us-east-2-246529850718 --output-template post-saml.yaml
+        artifacts:
+            files:
+                - post-saml.yaml

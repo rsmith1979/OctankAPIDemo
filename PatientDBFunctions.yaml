@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
 Description: An AWS Serverless Specification template describing your function.
 Resources:
-  CustomizeUnicornsPatientDBFunction11QKPSEMR77O1:
+  PatientDBFunction11QKPSEMR77O1:
     Type: 'AWS::Serverless::Function'
     Properties:
       Handler: patientDB.lambda_handler
@@ -44,4 +44,4 @@ Resources:
         Variables:
           SECRET_NAME: secure-serverless-db-secret
       Tags:
-        'lambda:createdBy': SAM
+        ContactTag: Me

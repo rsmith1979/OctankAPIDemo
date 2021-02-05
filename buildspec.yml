@@ -18,5 +18,5 @@ containers:
         artifacts:
             files:
                 - post-saml.yaml
-                - app/*
-                - authorizer/*
+                - 'app/*'
+                - 'authorizer/*'

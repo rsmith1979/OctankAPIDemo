@@ -21,3 +21,4 @@ containers:
                 - app/*
                 - authorizer/*
                 - app/assets/*
+                - *

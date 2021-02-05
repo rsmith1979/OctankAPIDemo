@@ -8,13 +8,13 @@ containers:
         phases:
             during_build:
                 commands:
-                    - pushd app
+                    - cd "app"
                     - ls app
                     - npm install 
-                    - popd
-                    - pushd authorizer
+                    - cd ..
+                    - cd "authorizer"
                     - npm install
-                    - popd
+                    - cd ..
                     - aws cloudformation package --template patientdbAPI.yaml --s3-bucket codepipeline-us-east-2-246529850718 --output-template post-saml.yaml
         artifacts:
             files:

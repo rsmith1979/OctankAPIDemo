@@ -1,0 +1,258 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Third party API functionality for Octank
+
+Globals:
+  Function:
+    Timeout: 30
+    Environment:
+      Variables:
+        SECRET_NAME: octank-serverless-db-secret # name of the RDS credentials in secrets manager
+
+Parameters:
+  InitResourceStack:
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: "^[a-zA-Z][-a-zA-Z0-9]*$"
+    Default: Octank-Serverless
+
+Resources:
+  CognitoUserPool:
+    Type: "AWS::Cognito::UserPool"
+    Properties:
+      UserPoolName: !Sub '${AWS::StackName}-users'
+
+  PartnerDDBTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: ClientID
+        Type: String
+      TableName: !Sub '${AWS::StackName}-OctankCustomers'
+
+  ManagePartnerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: app/
+      Handler: managePartners.lambda_handler
+      Runtime: nodejs10.x
+      Policies:
+        - VPCAccessPolicy: {}
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - "cognito-idp:*"
+              Resource: "*"
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - "dynamodb:*"
+              Resource: "*"
+#        - Version: '2012-10-17'
+#          Statement:
+#            - Effect: Allow
+#              Action:
+#                - "secretsmanager:GetSecretValue"
+#              Resource: "*"
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub "${InitResourceStack}-LambdaSecurityGroup"
+        SubnetIds:
+          - Fn::ImportValue: !Sub "${InitResourceStack}-PrivateSubnet1"
+          - Fn::ImportValue: !Sub "${InitResourceStack}-PrivateSubnet2"
+      Events:
+        CreatePartner:
+          Type: Api
+          Properties:
+            Path: /partners
+            Method: post
+            RestApiId:
+              Ref: OctankApi
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref CognitoUserPool
+          PARTNER_DDB_TABLE: !Ref PartnerDDBTable
+
+        
+  
+  
+  CustomAuthorizerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: authorizer/
+      Runtime: nodejs10.x
+      Handler: index.handler
+      Policies:
+        Statement:
+          - Effect: Allow
+            Action:
+            - "dynamodb:*"
+            Resource: "*"
+      Environment:
+        Variables:
+          USER_POOL_ID: !Ref CognitoUserPool
+          PARTNER_DDB_TABLE: !Ref PartnerDDBTable
+          
+  ApiGatewayAuthorizerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "apigateway.amazonaws.com"
+            Action:
+              - sts:AssumeRole
+      Policies:
+        -
+          PolicyName: "InvokeAuthorizerFunction"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - lambda:InvokeAsync
+                  - lambda:InvokeFunction
+                Resource:
+                  Fn::Sub: ${CustomAuthorizerFunction.Arn}
+                  
+                  
+  PatientDBFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: app/
+      Handler: patientDB.lambda_handler
+      Runtime: nodejs10.x
+      Policies:
+        - VPCAccessPolicy: {}
+#        - Version: '2012-10-17'
+#          Statement:
+#            - Effect: Allow
+#              Action:
+#                - "secretsmanager:GetSecretValue"
+#              Resource: "*"
+      VpcConfig:
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub "${InitResourceStack}-LambdaSecurityGroup"
+        SubnetIds:
+          - Fn::ImportValue: !Sub "${InitResourceStack}-PrivateSubnet1"
+          - Fn::ImportValue: !Sub "${InitResourceStack}-PrivateSubnet2"
+      Events:
+        ListPatients:
+          Type: Api
+          Properties:
+            Path: /patients
+            Method: get
+            RestApiId:
+              Ref: OctankApi
+        CreatePatients:
+          Type: Api
+          Properties:
+            Path: /patients
+            Method: post
+            RestApiId:
+              Ref: OctankApi
+        GetPatients:
+          Type: Api
+          Properties:
+            Path: /patients/{id}
+            Method: get
+            RestApiId:
+              Ref: OctankApi
+        DeletePatients:
+          Type: Api
+          Properties:
+            Path: /patients/{id}
+            Method: delete
+            RestApiId:
+              Ref: OctankApi
+  
+  
+  
+  
+  OctankApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: dev
+      DefinitionBody:
+        swagger: "2.0"
+        info:
+          title:
+            Ref: AWS::StackName
+          description: Octank API for describing and managing patient data
+          version: 1.0.0
+        securityDefinitions:
+          CustomAuthorizer:
+            type: apiKey
+            name: Authorization
+            in: header
+            x-amazon-apigateway-authtype: custom
+            x-amazon-apigateway-authorizer:
+              type: token
+              authorizerUri:
+                Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CustomAuthorizerFunction.Arn}/invocations
+              authorizerCredentials:
+                Fn::Sub: ${ApiGatewayAuthorizerRole.Arn}
+              authorizerResultTtlInSeconds: 60
+        paths:
+          "/patients":
+            get:
+              security:
+                - CustomAuthorizer: []
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PatientDBFunction.Arn}/invocations
+              responses: {}
+            post:
+              security:
+                - CustomAuthorizer: []
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PatientDBFunction.Arn}/invocations
+              responses: {}
+          "/patients/{id}":
+            get:
+              security:
+                - CustomAuthorizer: []
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PatientDBFunction.Arn}/invocations
+              responses: {}
+            delete:
+              security:
+                - CustomAuthorizer: []
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PatientDBFunction.Arn}/invocations
+              responses: {}
+          "/partners":
+            post:
+              security:
+                - CustomAuthorizer: []
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ManagePartnerFunction.Arn}/invocations
+              responses: {}
+
+
+Outputs:
+  ApiURL:
+    Description: "API endpoint URL for dev environment"
+    Value: !Sub "https://${OctankApi}.execute-api.${AWS::Region}.amazonaws.com/dev/"

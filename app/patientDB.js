@@ -50,7 +50,7 @@ exports.lambda_handler = function (event, context, callback) {
         // LIST request
         else {
             dbUtil.listPatients(company).then(results => {
-                console.log("successfully retrieved " + results.length + " custom patients.");
+                console.log("successfully retrieved " + results.length + " patients.");
 
                 results = results.map(item => {
                     delete item["COMPANY"];

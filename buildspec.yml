@@ -18,6 +18,6 @@ containers:
         artifacts:
             files:
                 - post-saml.yaml
-                - app/node_modules/*
-                - authorizer/node_modules/*
+                - app/*
+                - authorizer/*
                 - app/assets/*

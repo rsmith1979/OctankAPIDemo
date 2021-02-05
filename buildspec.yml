@@ -9,7 +9,7 @@ containers:
             during_build:
                 commands:
                     - pushd app
-                    - ls -l
+                    - ls app
                     - npm install 
                     - popd
                     - pushd authorizer

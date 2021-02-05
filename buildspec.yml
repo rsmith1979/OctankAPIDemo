@@ -8,8 +8,8 @@ containers:
         phases:
             during_build:
                 commands:
-                    - cd app && npm install && cd ..
-                    - npm install 
+                    - cd app
+                    - npm install app
                     - cd ..
                     - cd authorizer
                     - npm install

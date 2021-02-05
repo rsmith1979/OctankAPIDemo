@@ -10,7 +10,6 @@ containers:
                 commands:
                     - cd app
                     - npm install app --prefix ./app
-                    - cd ..
                     - cd authorizer
                     - npm install authorizer --prefix ./authorizer
                     - cd ..

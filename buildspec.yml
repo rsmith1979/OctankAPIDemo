@@ -20,5 +20,3 @@ containers:
                 - post-saml.yaml
                 - app/*
                 - authorizer/*
-                - app/assets/*
-                - *

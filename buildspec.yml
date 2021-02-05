@@ -9,6 +9,7 @@ containers:
             during_build:
                 commands:
                     - cd app
+                    - ls -l
                     - npm install
                     - cd ..
                     - cd authorizer
@@ -20,4 +21,4 @@ containers:
                 - post-saml.yaml
                 - app/node_modules/*
                 - authorizer/node_modules/*
-                - assets/*
+                - app/assets/*

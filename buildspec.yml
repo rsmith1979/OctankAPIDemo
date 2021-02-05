@@ -12,7 +12,7 @@ containers:
                     - npm install app
                     - cd ..
                     - cd authorizer
-                    - npm install
+                    - npm install authorizer
                     - cd ..
                     - aws cloudformation package --template patientdbAPI.yaml --s3-bucket codepipeline-us-east-2-246529850718 --output-template post-saml.yaml
         artifacts:

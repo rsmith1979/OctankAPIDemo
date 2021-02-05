@@ -8,11 +8,11 @@ containers:
         phases:
             during_build:
                 commands:
-                    - cd app
+                    - cd /app
                     - ls -l
                     - npm install
                     - cd ..
-                    - cd authorizer
+                    - cd /authorizer
                     - npm install
                     - cd ..
                     - aws cloudformation package --template patientdbAPI.yaml --s3-bucket codepipeline-us-east-2-246529850718 --output-template post-saml.yaml

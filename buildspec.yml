@@ -14,6 +14,7 @@ containers:
                     - npm install authorizer --prefix ./authorizer
                     - cd ..
                     - aws cloudformation package --template patientdbAPI.yaml --s3-bucket codepipeline-us-east-2-246529850718 --output-template post-saml.yaml
+                    - aws cloudformation package --template patientdbAPI.yaml --s3-bucket codepipeline-ap-south-1-224059767813 --output-template post-saml.yaml
         artifacts:
             files:
                 - post-saml.yaml

@@ -143,7 +143,14 @@ function ValidateToken(pems, event, context, callback) {
                 policy.allowMethod(AuthPolicy.HttpVerb.GET, "/partner*");
                 policy.allowMethod(AuthPolicy.HttpVerb.POST, "/partner*");
                 policy.allowMethod(AuthPolicy.HttpVerb.DELETE, "/partner*");
-
+                
+                 if (payload.scope.includes(PATIENTENTRY)) {
+                        policy.allowMethod(AuthPolicy.HttpVerb.GET, "/patients*");
+                        policy.allowMethod(AuthPolicy.HttpVerb.POST, "/patients*");
+                        policy.allowMethod(AuthPolicy.HttpVerb.DELETE, "/patients*");
+                    }
+                
+                
                 const authResponse = policy.build();
                 console.log("authResponse:" + JSON.stringify(authResponse, null, 2));
                 callback(null, authResponse);

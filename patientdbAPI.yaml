@@ -6,6 +6,9 @@ Globals:
   Function:
     Timeout: 30
     Environment:
+    AutoPublishAlias: live
+      DeploymentPreference:
+        Type: Linear10PercentEvery10Minutes
       Variables:
         SECRET_NAME: octank-serverless-db-secret # name of the RDS credentials in secrets manager
 
@@ -130,9 +133,6 @@ Resources:
       CodeUri: app/
       Handler: patientDB.lambda_handler
       Runtime: nodejs10.x
-      AutoPublishAlias: live
-      DeploymentPreference:
-        Type: Linear10PercentEvery10Minutes
       Policies:
         - VPCAccessPolicy: {}
 #        - Version: '2012-10-17'

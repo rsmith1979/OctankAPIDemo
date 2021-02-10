@@ -130,6 +130,9 @@ Resources:
       CodeUri: app/
       Handler: patientDB.lambda_handler
       Runtime: nodejs10.x
+      AutoPublishAlias: live
+      DeploymentPreference:
+        Type: Linear10PercentEvery10Minutes
       Policies:
         - VPCAccessPolicy: {}
 #        - Version: '2012-10-17'

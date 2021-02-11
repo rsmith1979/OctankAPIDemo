@@ -26,8 +26,8 @@ exports.lambda_handler = function (event, context, callback) {
                 console.log("successfully retrieved: " + JSON.stringify(results, null, 2));
 
                 if (results.length == 0) {
-                    //callback(null, httpUtil.returnNotFound("patient  " + id + " does not exist please try again"));
-                    callback(null, httpUtil.returnNotFound("No results"));
+                    callback(null, httpUtil.returnNotFound("patient  " + id + " does not exist please try again"));
+                   // callback(null, httpUtil.returnNotFound("No results"));
                     return;
                 }
                 else {

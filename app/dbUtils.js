@@ -7,8 +7,8 @@ const region = process.env["AWS_REGION"];
 /*
 * Host
 */
-var host_val = "octankserverlessdemo2-auroradbcluster-16qlr2cqgur11.cluster-cmxrjipqkghr.us-east-2.rds.amazonaws.com";
-    
+var host_val = "octankserverlessdemo2-auroradbcluster.cluster-cmxrjipqkghr.us-east-2.rds.amazonaws.com";
+                
 if (region !== "us-east-2")
 { host_val = "mumbai-reader.cqbg2ja7hhet.ap-south-1.rds.amazonaws.com" //India region 
 }
